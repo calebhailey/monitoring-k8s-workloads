@@ -1,0 +1,57 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  selector:
+    app: nginx
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8000
+      targetPort: 80
+  type: LoadBalancer
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  minReadySeconds: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      name: nginx
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - protocol: TCP
+          containerPort: 80
+      - name: sensu-agent
+        image: sensu/sensu:5.11.1
+        command: ["/opt/sensu/bin/sensu-agent", "start", "--log-level=debug", "--insecure-skip-tls-verify", "--keepalive-interval=5", "--keepalive-timeout=10"]
+        env:
+        - name: SENSU_BACKEND_URL
+          value: wss://sensu-backend-0.sensu.sensu-system.svc.cluster.local:8081 wss://sensu-backend-1.sensu.sensu-system.svc.cluster.local:8081 wss://sensu-backend-2.sensu.sensu-system.svc.cluster.local:8081
+        - name: SENSU_NAMESPACE
+          value: webinar
+        - name: SENSU_SUBSCRIPTIONS
+          value: linux kubernetes nginx
+        - name: SENSU_DEREGISTER
+          value: "true"
+        - name: SENSU_STATSD_EVENT_HANDLERS
+          value: statsd
