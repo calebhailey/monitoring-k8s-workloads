@@ -67,3 +67,15 @@ pattern".
      - name: SENSU_STATSD_EVENT_HANDLERS
        value: statsd
    ```
+
+4. **Configure the monitoring check**.
+
+   ```shell
+   $ sensuctl --namespace webinar create -f sensu/checks/check-nginx.yaml
+   ```
+
+5. **Configure the telemetry pipeline (InfluxDB Handler)**.
+
+   ```shell
+   $ sensuctl --namespace webinar create -f sensu/handlers/influxdb.yaml
+   ```

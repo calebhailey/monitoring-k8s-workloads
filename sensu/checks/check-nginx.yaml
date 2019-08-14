@@ -1,0 +1,58 @@
+---
+type: Asset
+api_version: core/v2
+metadata:
+  name: monitoring-plugins-alpine
+spec:
+  url: https://github.com/calebhailey/sensu-assets-monitoring-plugins/releases/download/2.2.0/monitoring-plugins-alpine_2.2.0_linux_amd64.tar.gz
+  sha512: 81f7d411bd4ed4234dc54cd9218e808130a0a7db93d8ea998aa6ce74dc847bbd87ffa232c70bf4b066eb96ff3e6cb3ea0ddab1f593050b5c0bdb83f4eb36a6b2
+  filters:
+  - entity.system.os == 'linux'
+  - entity.system.arch == 'amd64'
+  - entity.system.platform == 'alpine'
+
+---
+type: Asset
+api_version: core/v2
+metadata:
+  name: monitoring-plugins-centos
+spec:
+  url: https://github.com/calebhailey/sensu-assets-monitoring-plugins/releases/download/2.2.0/monitoring-plugins-centos_2.2.0_linux_amd64.tar.gz
+  sha512: 0131ffea75099b2140b2d11da576c5b601d99eb7661a8105cadd884e5d953f215d23386a84ed871aabfe6a5751ce11443278be6ab510c8feab478b0365b329f0
+  filters:
+  - entity.system.os == 'linux'
+  - entity.system.arch == 'amd64'
+  - entity.system.platform == 'centos'
+
+---
+type: Asset
+api_version: core/v2
+metadata:
+  name: monitoring-plugins-debian
+spec:
+  url: https://github.com/calebhailey/sensu-assets-monitoring-plugins/releases/download/2.2.0/monitoring-plugins-debian_2.2.0_linux_amd64.tar.gz
+  sha512: 632366d0d55bd79762a71ef4e3209bcf6a499b6449ef6cb9471712e7799d3f6834ae7b3bafa1dfb00d4f358afed27971e7ed8b34d0424cdb31ec7a18aaf74b4f
+  filters:
+  - entity.system.os == 'linux'
+  - entity.system.arch == 'amd64'
+  - entity.system.platform == 'debian'
+
+---
+type: CheckConfig
+api_version: core/v2
+metadata:
+  name: check-nginx
+spec:
+  command: check_http -H 127.0.0.1 -N
+  publish: true
+  interval: 10
+  subscriptions:
+  - nginx
+  runtime_assets:
+  - monitoring-plugins-alpine
+  - monitoring-plugins-centos
+  - monitoring-plugins-debian
+  timeout: 10
+  output_metric_format: nagios_perfdata
+  output_metric_handlers:
+  - influxdb

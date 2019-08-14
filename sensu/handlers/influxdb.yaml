@@ -1,0 +1,48 @@
+---
+type: Asset
+api_version: core/v2
+metadata:
+  name: sensu-influx-handler-linux
+spec:
+  url: https://github.com/sensu/sensu-influxdb-handler/releases/download/3.1.2/sensu-influxdb-handler_3.1.2_linux_amd64.tar.gz
+  sha512: 612c6ff9928841090c4d23bf20aaf7558e4eed8977a848cf9e2899bb13a13e7540bac2b63e324f39d9b1257bb479676bc155b24e21bf93c722b812b0f15cb3bd
+  filters:
+  - entity.system.os == 'linux'
+  - entity.system.arch == 'amd64'
+
+---
+type: Asset
+api_version: core/v2
+metadata:
+  name: sensu-go-metric-tag-enrichment
+spec:
+  url: https://github.com/calebhailey/sensu-go-metric-tag-enrichment/releases/download/0.3.0/sensu-go-metric-tag-enrichment_0.3.0_linux_amd64.tar.gz
+  sha512: 030b06c434c2cd110355c61dbccc5b49acf7200624a391ef1a4a4f731275d762f7b73b7dccb12361f168d253ec16737cffd67cc3f6ea89d465154d6357fd4488
+  filters:
+  - entity.system.os == 'linux'
+  - entity.system.arch == 'amd64'
+
+---
+type: Mutator
+api_version: core/v2
+metadata:
+  name: sensu-go-metric-tag-enrichment
+spec:
+  command: sensu-go-metric-tag-enrichment
+  timeout: 10
+  runtime_assets:
+  - sensu-go-metric-tag-enrichment
+
+---
+type: Handler
+api_version: core/v2
+metadata:
+  name: influxdb
+spec:
+  type: pipe
+  command: sensu-influxdb-handler -a 'http://influxdb-0.influxdb.sensu-system.svc.cluster.local:8086'
+    -d 'sensu' -u 'admin' -p 'admin'
+  runtime_assets:
+  - sensu-influx-handler-linux
+  mutator: sensu-go-metric-tag-enrichment
+  timeout: 10
